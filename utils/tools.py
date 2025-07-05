@@ -5,9 +5,28 @@ from utils.fit import *
 
 
 def get_fit_param(model, fit_sub_info, method='mle', poi=None):
+    '''
+    extract fitted parameters from the fitted results
+
+    Parameters:
+        model:
+
+        fit_sub_info: dict, contain the
+
+        method: str {'mle', 'map', 'bads'}, optional
+        poi: list of str, (default: all params)  (default: all params), optional
+           a list of parameters of interests
+    
+    Return:
+        params: pd.dataframes
+
+    '''
     if poi is None: poi = eval(model).p_names
+    
     sub_lst = list(fit_sub_info.keys())
+    
     if 'group' in sub_lst: sub_lst.pop(sub_lst.index('group'))
+    
     params = {p: [] for p in poi}
     params['sub_id'] = []
     for sub_id in sub_lst:
@@ -18,17 +37,24 @@ def get_fit_param(model, fit_sub_info, method='mle', poi=None):
             params[p].append(fn(pvalue))
     return pd.DataFrame.from_dict(params)
 
-def get_llh_score(models, method, fit_sub_info,
-                  use_bic=False,
+def get_model_metric(models, method, fit_sub_info,
+                  use_bic=True,
                   relative=True):
-    '''Get likelihood socres
+    '''Get likelihood scores
 
     Inputs:
-        models: a list of models for evaluation
+        models: list, a list of models for evaluation
+        method: str, {'mle', 'map', 'bads'}
+        fit_sub_info: dict, 
+            contain fitting info for all subject
+        use_bic: bool, optional
+            whether use BIC to approximate PXP
+        relative: bool, optinal
+            whether calculated relative model metric compared to the best model
     
-    Outputs:
-        crs: nll, aic and bic score per model per particiant
-        pxp: pxp score per model per particiant
+    Return:
+        crs: pd.dataframe, nll, aic and bic score per model per particiant
+        pxp: pd.dataframe, pxp score per model per particiant
     '''
     tar = models[0] 
     fit_sub_info = []
@@ -69,6 +95,7 @@ def get_llh_score(models, method, fit_sub_info,
         crs['model'] += [m]*len(nll)
         crs['sub_id'] += list(subj_lst)
     crs = pd.DataFrame.from_dict(crs)
+
     for c in ['NLL', 'BIC', 'AIC']:
         tar_crs = len(models)*list(crs.query(f'model=="{tar}"')[c].values)
         subtrack = tar_crs if relative else 0
