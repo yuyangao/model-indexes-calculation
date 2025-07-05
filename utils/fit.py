@@ -278,11 +278,11 @@ def fit_parallel(pool, loss_fn, data, bnds, pbnds, p_name,
 def fit_bms(all_sub_info, use_bic=False, tol=1e-4):
     '''Fit group-level Bayesian model seletion
     Nm is the number of model
-    Args: 
+    Parameters: 
         all_sub_info: [Nm, list] a list of model fitting results
         use_bic: use bic to approximate lme
         tol: 
-    Outputs:
+    Return:
         BMS result: a dict including 
             -alpha: [1, Nm] posterior of the model probability
             -p_m1D: [nSub, Nm] posterior of the model 
@@ -305,6 +305,9 @@ def fit_bms(all_sub_info, use_bic=False, tol=1e-4):
     Based on: https://github.com/sjgershm/mfit
     @ ZF
     '''
+    
+    
+    
     ## get log model evidence
     if use_bic:
         lme = np.vstack([-.5*np.array(fit_info['bic']) for fit_info in all_sub_info]).T
